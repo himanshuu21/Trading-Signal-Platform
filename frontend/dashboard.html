@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trading Signal Dashboard</title>
+  <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <header>
+    <div class="header-left">
+      <span class="logo">📈</span>
+      <h1>Trading Signal Dashboard</h1>
+    </div>
+    <div class="header-right">
+      <span id="last-updated">--</span>
+      <span id="status-dot" class="dot gray"></span>
+    </div>
+  </header>
+
+  <!-- ── Controls ───────────────────────────────────────── -->
+  <div class="container">
+    <div class="controls">
+      <div class="control-group">
+        <label>Select Stock</label>
+        <select id="stock-select">
+          <option value="RELIANCE">RELIANCE</option>
+          <option value="TCS">TCS</option>
+          <option value="INFY">INFY</option>
+          <option value="HDFCBANK">HDFCBANK</option>
+          <option value="SBIN">SBIN</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Starting Capital (₹)</label>
+        <input type="number" id="capital-input" value="100000"
+               min="10000" max="10000000" step="10000" />
+      </div>
+
+      <button id="refresh-btn" onclick="loadAll()">
+        🔄 Refresh
+      </button>
+
+      <div class="control-group">
+        <label>Auto Refresh</label>
+        <label class="toggle">
+          <input type="checkbox" id="auto-refresh" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── Signal Banner ──────────────────────────────────── -->
+    <div id="signal-banner" class="signal-banner neutral">
+      Loading...
+    </div>
+
+    <!-- ── Metric Cards ───────────────────────────────────── -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Current Price</div>
+        <div class="card-value" id="card-price">--</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Signal</div>
+        <div class="card-value" id="card-signal">--</div>
+      </div>
+      <div class="card">
+        <div class="card-label">RSI</div>
+        <div class="card-value" id="card-rsi">--</div>
+      </div>
+      <div class="card">
+        <div class="card-label">ADX</div>
+        <div class="card-value" id="card-adx">--</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Vol Ratio</div>
+        <div class="card-value" id="card-vol">--</div>
+      </div>
+      <div class="card">
+        <div class="card-label">ML Confidence</div>
+        <div class="card-value" id="card-ml">--</div>
+      </div>
+    </div>
+
+    <!-- ── Indicator Details ──────────────────────────────── -->
+    <div class="section">
+      <h2>🔍 Indicator Values</h2>
+      <div class="indicator-grid">
+
+        <div class="indicator-group">
+          <h3>Trend</h3>
+          <div class="indicator-row"><span>EMA 20</span><span id="i-ema20">--</span></div>
+          <div class="indicator-row"><span>EMA 50</span><span id="i-ema50">--</span></div>
+          <div class="indicator-row"><span>SMA 20</span><span id="i-sma20">--</span></div>
+          <div class="indicator-row"><span>SMA 50</span><span id="i-sma50">--</span></div>
+          <div class="indicator-row"><span>VWAP</span><span id="i-vwap">--</span></div>
+        </div>
+
+        <div class="indicator-group">
+          <h3>Momentum</h3>
+          <div class="indicator-row"><span>RSI</span><span id="i-rsi">--</span></div>
+          <div class="indicator-row"><span>MACD</span><span id="i-macd">--</span></div>
+          <div class="indicator-row"><span>MACD Signal</span><span id="i-macd-signal">--</span></div>
+          <div class="indicator-row"><span>MACD Hist</span><span id="i-macd-hist">--</span></div>
+        </div>
+
+        <div class="indicator-group">
+          <h3>Volatility & Volume</h3>
+          <div class="indicator-row"><span>ATR</span><span id="i-atr">--</span></div>
+          <div class="indicator-row"><span>ADX</span><span id="i-adx">--</span></div>
+          <div class="indicator-row"><span>BB Upper</span><span id="i-bb-upper">--</span></div>
+          <div class="indicator-row"><span>BB Lower</span><span id="i-bb-lower">--</span></div>
+          <div class="indicator-row"><span>Volume Ratio</span><span id="i-vol-ratio">--</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Recent Signals Table ───────────────────────────── -->
+    <div class="section">
+      <h2>📋 Recent Signals</h2>
+      <div class="table-wrapper">
+        <table id="signals-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Price (₹)</th>
+              <th>RSI</th>
+              <th>MACD</th>
+              <th>ADX</th>
+              <th>Vol Ratio</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody id="signals-body">
+            <tr><td colspan="7" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Backtest Section ───────────────────────────────── -->
+    <div class="section">
+      <h2>📊 Backtest Results <span class="subtitle" id="backtest-subtitle"></span></h2>
+
+      <div class="cards" id="backtest-cards">
+        <div class="card"><div class="card-label">Total Trades</div><div class="card-value" id="bt-trades">--</div></div>
+        <div class="card"><div class="card-label">Win Rate</div><div class="card-value" id="bt-winrate">--</div></div>
+        <div class="card"><div class="card-label">Total Return</div><div class="card-value" id="bt-return">--</div></div>
+        <div class="card"><div class="card-label">Total PnL</div><div class="card-value" id="bt-pnl">--</div></div>
+        <div class="card"><div class="card-label">Max Drawdown</div><div class="card-value" id="bt-drawdown">--</div></div>
+        <div class="card"><div class="card-label">Sharpe Ratio</div><div class="card-value" id="bt-sharpe">--</div></div>
+      </div>
+
+      <!-- Trade Log -->
+      <details class="trade-log">
+        <summary>📄 View Full Trade Log</summary>
+        <div class="table-wrapper">
+          <table id="trades-table">
+            <thead>
+              <tr>
+                <th>Entry Time</th>
+                <th>Exit Time</th>
+                <th>Entry ₹</th>
+                <th>Exit ₹</th>
+                <th>PnL (₹)</th>
+                <th>PnL (%)</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="trades-body">
+              <tr><td colspan="7" class="loading">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+
+    <!-- ── Footer ─────────────────────────────────────────── -->
+    <footer>
+      Built with FastAPI + Angel One SmartAPI &nbsp;|&nbsp;
+      <a href="/docs" target="_blank">API Docs</a>
+    </footer>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
