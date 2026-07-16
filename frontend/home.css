@@ -1,0 +1,735 @@
+/* ================================
+   TradeSense Landing Page
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+
+    --bg: #09090B;
+    --surface: #14151A;
+    --surface-light: #1B1D24;
+
+    --primary: #2563EB;
+    --primary-light: #3B82F6;
+
+    --green: #22C55E;
+    --red: #EF4444;
+
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+
+    --border: #2A2E39;
+
+    --radius: 16px;
+
+}
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+body {
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family: Segoe UI, Arial, sans-serif;
+
+    overflow-x: hidden;
+    background:
+        radial-gradient(circle at top left, #1e3a8a20, transparent 35%),
+        radial-gradient(circle at bottom right, #2563eb15, transparent 30%),
+        #09090B;
+
+}
+
+header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 20px 7%;
+
+    background: rgba(9, 9, 11, .85);
+
+    backdrop-filter: blur(18px);
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+.logo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+.logo-icon {
+
+    font-size: 32px;
+
+}
+
+.logo-text {
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+nav {
+
+    display: flex;
+
+    gap: 30px;
+
+    align-items: center;
+
+}
+
+nav a {
+
+    color: var(--muted);
+
+    text-decoration: none;
+
+    transition: .25s;
+
+    font-size: 15px;
+
+}
+
+nav a:hover {
+
+    color: white;
+
+}
+
+.nav-btn {
+
+    padding: 10px 20px;
+
+    background: var(--primary);
+
+    color: white;
+
+    border-radius: 10px;
+
+}
+
+.nav-btn:hover {
+
+    background: var(--primary-light);
+
+}
+
+.hero {
+
+    display: grid;
+
+    grid-template-columns: 1.2fr .8fr;
+
+    align-items: center;
+
+    gap: 70px;
+
+    padding: 90px 7%;
+
+    min-height: 92vh;
+
+}
+
+.hero-tag {
+
+    display: inline-block;
+
+    padding: 8px 18px;
+
+    border-radius: 999px;
+
+    background: rgba(37, 99, 235, .15);
+
+    color: #60A5FA;
+
+    margin-bottom: 25px;
+
+    font-size: 14px;
+
+}
+
+.hero h1 {
+
+    font-size: 60px;
+
+    line-height: 1.1;
+
+    margin-bottom: 25px;
+
+}
+
+.hero h1 span {
+
+    color: var(--primary-light);
+
+}
+
+.hero p {
+
+    color: var(--muted);
+
+    font-size: 18px;
+
+    line-height: 1.8;
+
+    max-width: 620px;
+
+}
+
+.hero-buttons {
+
+    display: flex;
+
+    gap: 20px;
+
+    margin-top: 40px;
+
+}
+
+.preview-card{
+
+animation:float 5s ease-in-out infinite;
+
+}
+
+@keyframes float{
+
+0%,100%{
+
+transform:translateY(0px);
+
+}
+
+50%{
+
+transform:translateY(-12px);
+
+}
+
+}
+
+.primary-btn {
+
+    background: var(--primary);
+
+    color: white;
+
+    text-decoration: none;
+
+    padding: 16px 30px;
+
+    border-radius: 12px;
+
+    transition: .25s;
+
+    font-weight: 600;
+
+}
+
+.primary-btn:hover {
+
+    transform: translateY(-3px);
+
+    background: var(--primary-light);
+
+}
+
+.secondary-btn {
+
+    border: 1px solid var(--border);
+
+    color: white;
+
+    text-decoration: none;
+
+    padding: 16px 28px;
+
+    border-radius: 12px;
+
+    transition: .25s;
+
+}
+
+.secondary-btn:hover {
+
+    background: var(--surface);
+
+}
+
+.preview-card {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 22px;
+
+    padding: 35px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+
+}
+
+.preview-header {
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+.preview-signal {
+
+    margin-top: 25px;
+
+    display: inline-block;
+
+    padding: 8px 22px;
+
+    border-radius: 999px;
+
+    font-weight: bold;
+
+}
+
+.buy {
+
+    background: rgba(34, 197, 94, .15);
+
+    color: var(--green);
+
+}
+
+.preview-price {
+
+    margin-top: 25px;
+
+    font-size: 42px;
+
+    font-weight: 700;
+
+}
+
+.preview-grid {
+
+    margin-top: 35px;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 18px;
+
+}
+
+.preview-grid div {
+
+    background: var(--surface-light);
+
+    padding: 20px;
+
+    border-radius: 14px;
+
+}
+
+.preview-grid small {
+
+    color: var(--muted);
+
+}
+
+.preview-grid strong {
+
+    display: block;
+
+    margin-top: 10px;
+
+    font-size: 22px;
+
+}
+
+/* ================= FEATURES ================= */
+
+.features {
+
+    padding: 100px 7%;
+
+}
+
+.features h2 {
+
+    text-align: center;
+
+    font-size: 42px;
+
+    margin-bottom: 60px;
+
+}
+
+.feature-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 30px;
+
+}
+
+.feature-card {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    transition: .3s;
+
+}
+
+.feature-card{
+
+transition:.35s;
+
+}
+
+.feature-card:hover{
+
+transform:
+translateY(-10px)
+scale(1.02);
+
+box-shadow:
+0 20px 40px rgba(37,99,235,.15);
+
+}
+
+.feature-card .icon {
+
+    font-size: 42px;
+
+    margin-bottom: 18px;
+
+}
+
+.feature-card h3 {
+
+    margin-bottom: 15px;
+
+    font-size: 24px;
+
+}
+
+.feature-card p {
+
+    color: var(--muted);
+
+    line-height: 1.8;
+
+}
+
+/* ================= WORKFLOW ================= */
+
+.workflow {
+
+    padding: 100px 7%;
+
+}
+
+.workflow h2 {
+
+    text-align: center;
+
+    font-size: 42px;
+
+    margin-bottom: 70px;
+
+}
+
+.flow {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+
+}
+
+.flow-box {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    padding: 22px 32px;
+
+    border-radius: 14px;
+
+    font-weight: 600;
+
+}
+
+.flow span {
+
+    font-size: 28px;
+
+    color: var(--primary);
+
+}
+
+/* ================= STATS ================= */
+
+.stats {
+
+    padding: 100px 7%;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 30px;
+
+}
+
+.stat-card {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    text-align: center;
+
+}
+
+.stat-card h2 {
+
+    font-size: 46px;
+
+    color: var(--primary-light);
+
+    margin-bottom: 15px;
+
+}
+
+.stat-card p {
+
+    color: var(--muted);
+
+}
+
+/* ================= CTA ================= */
+
+.cta {
+
+    padding: 120px 7%;
+
+    text-align: center;
+
+}
+
+.cta h2 {
+
+    font-size: 48px;
+
+    margin-bottom: 40px;
+
+}
+
+/* ================= FOOTER ================= */
+
+footer {
+
+    border-top: 1px solid var(--border);
+
+    padding: 60px 7%;
+
+    text-align: center;
+
+}
+
+footer h3 {
+
+    font-size: 32px;
+
+    margin-bottom: 10px;
+
+}
+
+footer p {
+
+    color: var(--muted);
+
+    margin-bottom: 15px;
+
+}
+
+footer small {
+
+    color: #666;
+
+}
+
+/* ================= TECH STACK ================= */
+
+.tech-stack{
+
+    padding:100px 7%;
+
+    text-align:center;
+
+}
+
+.tech-stack h2{
+
+    font-size:42px;
+
+    margin-bottom:50px;
+
+}
+
+.tech-pills{
+
+    display:flex;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+    gap:18px;
+
+}
+
+.tech-pills span{
+
+    padding:14px 24px;
+
+    border-radius:999px;
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    transition:.3s;
+
+}
+
+.tech-pills span:hover{
+
+    background:var(--primary);
+
+    transform:translateY(-4px);
+
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1000px) {
+
+    .hero {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .hero h1 {
+
+        font-size: 48px;
+
+    }
+
+    .feature-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .stats {
+
+        grid-template-columns: repeat(2, 1fr);
+
+    }
+
+    nav {
+
+        display: none;
+
+    }
+
+}
+
+@media(max-width:600px) {
+
+    .hero h1 {
+
+        font-size: 38px;
+
+    }
+
+    .hero-buttons {
+
+        flex-direction: column;
+
+    }
+
+    .stats {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .flow {
+
+        flex-direction: column;
+
+    }
+
+    .flow span {
+
+        transform: rotate(90deg);
+
+    }
+
+}
