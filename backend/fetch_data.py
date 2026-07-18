@@ -90,6 +90,10 @@ def fetch_candles(
 
         raw_data = response["data"]
 
+        print("Last 5 raw candles:")
+        for candle in raw_data[-5:]:
+            print(candle)
+
         df = pd.DataFrame(
             raw_data,
             columns=[

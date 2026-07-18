@@ -21,10 +21,16 @@ from backtest import calculate_metrics, run_backtest
 from fetch_data import fetch_candles, login
 from indicators import add_all_indicators
 from signals import generate_signals
+from pathlib import Path
 
 DEFAULT_INTERVAL = "FIVE_MINUTE"
 DEFAULT_LOOKBACK_DAYS = 7
 BACKTEST_LOOKBACK_DAYS = 30
+BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = BASE_DIR / "frontend"
+BACKEND_DIR = Path(__file__).resolve().parent
+MODEL_DIR = BACKEND_DIR / "model"
+MODEL_PATH = BASE_DIR / "backend" / "model" / "model.pkl"
 
 # ── App Setup 
 app = FastAPI(
@@ -44,8 +50,11 @@ app.add_middleware(
 # ── Mount frontend folder 
 # NEW — only mounts if folder exists
 import os
-if os.path.exists("frontend"):
-    app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=FRONTEND_DIR),
+    name="static"
+)
 # ── Stock Token Map 
 STOCKS = {
     "RELIANCE": "2885",
@@ -68,27 +77,58 @@ def get_smart():
 def get_processed_df(stock_name, days=DEFAULT_LOOKBACK_DAYS):
     token = STOCKS.get(stock_name.upper())
     if not token:
-        raise HTTPException(status_code=404, detail=f"Stock '{stock_name}' not found")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Stock '{stock_name}' not found"
+        )
 
     smart = get_smart()
     if not smart:
-        raise HTTPException(status_code=500, detail="Angel One login failed")
+        raise HTTPException(
+            status_code=500,
+            detail="Angel One login failed"
+        )
 
-    today    = datetime.date.today()
+    today = datetime.date.today()
     from_day = today - datetime.timedelta(days=days)
 
     df = fetch_candles(
-        smart, token, DEFAULT_INTERVAL,
+        smart,
+        token,
+        DEFAULT_INTERVAL,
         f"{from_day} 09:15",
         f"{today} 15:30"
     )
 
     if df is None:
-        raise HTTPException(status_code=500, detail="Failed to fetch candle data")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch candle data"
+        )
 
+    # Clean data
+    df = df.sort_index()
+    df = df[~df.index.duplicated(keep="last")]
+    df = df[df["volume"] > 100]
+
+    # Debug
+    print("After fetch")
+    print(df.tail())
+
+    # Indicators
     df = add_all_indicators(df)
+
+    print("After indicators")
+    print(df.tail())
+
+    # Signals
     df = generate_signals(df)
-    return df
+
+    print("After signals")
+    print(df.tail())
+
+    # Return only recent candles
+    return df.tail(100)
 
 
 # 
@@ -98,7 +138,7 @@ def get_processed_df(stock_name, days=DEFAULT_LOOKBACK_DAYS):
 # ── Serve Frontend 
 @app.get("/")
 def serve_frontend():
-    return FileResponse("frontend/index.html")
+    return FileResponse(FRONTEND_DIR / "index.html")
 
 
 # ── Health Check 
@@ -125,7 +165,7 @@ def get_signal(stock_name: str):
 
     # Evaluate BUY signals using the trained ML model.
     ml_result = None
-    if latest["signal"] == "BUY" and os.path.exists("model/model.pkl"):
+    if latest["signal"] == "BUY" and MODEL_PATH.exists():
         try:
             from ml import load_model, predict_signal_quality
             model, scaler = load_model()
@@ -186,7 +226,10 @@ def get_recent_signals(stock_name: str, limit: int = 20):
 # ── Get Backtest Results 
 @app.get("/api/backtest/{stock_name}")
 def get_backtest(stock_name: str, capital: int = 100000):
-    df = get_processed_df(stock_name, BACKTEST_LOOKBACK_DAYS = 30)
+    df = get_processed_df(
+    stock_name,
+    days=BACKTEST_LOOKBACK_DAYS
+    )
 
     trades_df, equity_df = run_backtest(df, initial_capital=capital)
     metrics = calculate_metrics(trades_df, equity_df, initial_capital=capital)

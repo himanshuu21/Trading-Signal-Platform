@@ -44,59 +44,58 @@ FEATURE_COLUMNS = [
 ]
 
 # ── Step 1: Label The Data 
-def create_labels(df, forward_candles=10, target_pct=1.0):
+def create_labels(df, forward_candles=5):
     """
-    For each BUY signal, check if price rose by target_pct%
-    within the next forward_candles candles.
-    Label = 1 (good signal) or 0 (bad signal)
+    Create labels for every candle.
+
+    Label:
+        1 -> Price increased after forward_candles
+        0 -> Price stayed same or decreased
     """
-    labels = []
 
-    for i in range(len(df)):
-        row = df.iloc[i]
+    # Future closing price
+    df["future_close"] = df["close"].shift(-forward_candles)
 
-        if row["signal"] != "BUY":
-            labels.append(np.nan)
-            continue
+    # Binary target
+    df["target"] = (
+        df["future_close"] > df["close"]
+    ).astype(int)
 
-        entry_price  = row["close"]
-        future_end   = min(i + forward_candles, len(df) - 1)
-        future_high  = df.iloc[i+1 : future_end+1]["high"].max()
+    # Remove rows where future price is unavailable
+    df = df.dropna(subset=["future_close"])
 
-        target_price = entry_price * (1 + target_pct / 100)
-
-        if future_high >= target_price:
-            labels.append(1)    # signal worked
-        else:
-            labels.append(0)    # signal failed
-
-    df["label"] = labels
     return df
 
 
 # ── Step 2: Prepare Training Data 
 def prepare_training_data(df):
-    # Check which columns actually exist
-    missing   = [col for col in FEATURE_COLUMNS if col not in df.columns]
-    available = [col for col in FEATURE_COLUMNS if col in df.columns]
+
+    available = [
+        col for col in FEATURE_COLUMNS
+        if col in df.columns
+    ]
+
+    missing = [
+        col for col in FEATURE_COLUMNS
+        if col not in df.columns
+    ]
 
     if missing:
-        print(f"⚠️  Skipping missing columns: {missing}")
+        print(f"Skipping missing features: {missing}")
 
     if len(available) < 5:
-        print("❌ Too few features available. Check indicators.py")
+        print("Too few features.")
         return None, None
 
-    signal_rows = df[df["signal"] == "BUY"].dropna(subset=["label"])
+    # Remove rows with missing values
+    dataset = df.dropna(subset=available + ["target"])
 
-    if len(signal_rows) < 10:
-        print(f"Not enough BUY signals. Found {len(signal_rows)}, need 10.")
-        return None, None
+    X = dataset[available]
+    y = dataset["target"].astype(int)
 
-    X = signal_rows[available]
-    y = signal_rows["label"].astype(int)
+    print(f"Training samples : {len(dataset)}")
+    print(f"Features         : {len(available)}")
 
-    print(f"✅ Training with {len(available)} features")
     return X, y
 
 # ── Step 3: Train The Model 
@@ -214,7 +213,7 @@ def train_full_pipeline(df):
     that already has indicators and signals added.
     """
     print("Labelling signals...")
-    df = create_labels(df, forward_candles=10, target_pct=1.0)
+    df = create_labels(df, forward_candles=10)
 
     print("Preparing training data...")
     X, y = prepare_training_data(df)
