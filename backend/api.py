@@ -16,6 +16,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from ml import load_model, predict_signal_quality
+from decision_engine import get_recommendation
 
 from backtest import calculate_metrics, run_backtest
 from fetch_data import fetch_candles, login
@@ -31,6 +33,7 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 BACKEND_DIR = Path(__file__).resolve().parent
 MODEL_DIR = BACKEND_DIR / "model"
 MODEL_PATH = BASE_DIR / "backend" / "model" / "model.pkl"
+MODEL, SCALER = load_model()
 
 # ── App Setup 
 app = FastAPI(
@@ -289,3 +292,54 @@ def get_candles(stock_name: str):
         })
 
     return {"stock": stock_name.upper(), "candles": candles}
+
+
+@app.get("/api/predict/{stock_name}")
+def predict(stock_name: str):
+
+    df = get_processed_df(stock_name)
+
+    latest = df.iloc[-1]
+
+    # Rule Engine
+    rule_signal = latest["signal"]
+
+    # ML Prediction
+    prediction = predict_signal_quality(
+        MODEL,
+        SCALER,
+        latest
+    )
+
+    # Decision Engine
+    decision = get_recommendation(
+        rule_signal,
+        prediction["prediction"],
+        prediction["confidence"]
+    )
+
+    return {
+        "stock": stock_name.upper(),
+
+        "price": round(float(latest["close"]), 2),
+
+        "rule_signal": rule_signal,
+
+        "ml_prediction": (
+            "UP"
+            if prediction["prediction"] == 1
+            else "DOWN"
+        ),
+
+        "confidence": prediction["confidence"],
+
+        "decision": {
+            "recommendation": decision.recommendation,
+            "risk": decision.risk,
+            "agreement": decision.agreement,
+            "score": decision.score,
+            "reasons": decision.reasons
+        },
+
+        "timestamp": str(latest.name)
+    }

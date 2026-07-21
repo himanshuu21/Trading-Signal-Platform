@@ -187,22 +187,30 @@ def load_model(
 # ── Step 6: Predict On New Signal 
 def predict_signal_quality(model, scaler, row):
     """
-    Given one row of live data, predict:
-    - Will this BUY signal be profitable?
-    - What is the confidence percentage?
+    Predict the probability that price will move up.
+
+    Returns
+    -------
+    prediction : int
+        1 -> Expected Up
+        0 -> Expected Down
+
+    confidence : float
+        Probability (%) of the predicted class
     """
+
     features = row[FEATURE_COLUMNS].values.reshape(1, -1)
-    features_scaled = scaler.transform(features)
+    features = scaler.transform(features)
 
-    prediction   = model.predict(features_scaled)[0]
-    probability  = model.predict_proba(features_scaled)[0]
+    prediction = int(model.predict(features)[0])
 
-    confidence   = probability[1] * 100    # probability of being a good signal
+    probabilities = model.predict_proba(features)[0]
+
+    confidence = max(probabilities) * 100
 
     return {
-        "prediction":  "GOOD SIGNAL" if prediction == 1 else "WEAK SIGNAL",
-        "confidence":  round(confidence, 1),
-        "take_trade":  confidence >= 60    # only act if 60%+ confident
+        "prediction": prediction,
+        "confidence": round(confidence, 2)
     }
 
 
